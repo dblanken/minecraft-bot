@@ -1,20 +1,12 @@
 require('dotenv').config();
 
 const {Client} = require('discord.js');
-const Query = require('minecraft-query');
 const client = new Client();
 const moment = require('moment');
+const Tail = require('tail').Tail;
 
 const REFRESH_INTERVAL = process.env.DISCORD_REFRESH_INTERVAL
-const IP = process.env.MC_IP
-const PORT = process.env.MC_PORT
-const TIMEOUT = process.env.MC_QUERY_TIMEOUT
-
-const MCSTATUS_OPTIONS = {
-    host: IP,
-    port: PORT,
-    timeout: TIMEOUT
-}
+const LOGFILE = process.env.LOGFILE
 
 const DISCORD_ADMIN_ID = process.env.ADMIN_ID
 
@@ -99,48 +91,22 @@ const changeChannel = (message, author_id) => {
     }
 }
 
-// Use minecraft-query to get the list of users
-// If there are users, check the last time to see if anyone new
-// logged on or off and message discord accordingly.
-const minecraftCheck = (options) => {
-    var q = new Query(options);
-    var online_players = 0;
-    var players = [];
+var tail = new Tail(LOGFILE)
 
-    if (debug) {
-        sendLog("Checking...")
-    }
+tail.on("line", (data) => {
+    var login_logout = data.match(/([^ ]+ left the game|[^ ]+ joined the game)/g)
 
-    q.fullStat()
-        .then(success => {
-            online_players = parseInt(success.online_players);
-            players = success.players;
-            q.close();
-        }).then(success => {
-            if (online_players > 0) {
-                var newPlayers = players.filter(x => !lastResult.includes(x))
+    if (login_logout)
+        sendMessage(login_logout)
+})
 
-                if (newPlayers.length > 0)
-                    sendMessage(`${join_with_and(newPlayers)} ${has_or_have(newPlayers)} joined the server`)
-            }
-
-            var leftPlayers = lastResult.filter(x => !players.includes(x))
-
-            if (leftPlayers.length > 0)
-                sendMessage(`${join_with_and(leftPlayers)} ${has_or_have(leftPlayers)} have left the server`)
-
-            lastResult = players
-        })
-        .catch(console.error)
-};
+tail.on("error", (error) => {
+    sendLog(`ERROR: ${error}`)
+})
 
 client.on('ready', () => {
     console.log(`${client.user.tag} has logged in.`);
 
-    minecraftCheck(MCSTATUS_OPTIONS)
-
-    // Check status
-    var intervalId = client.setInterval(() => minecraftCheck(MCSTATUS_OPTIONS), REFRESH_INTERVAL)
 });
 
 client.on('message', msg => {
