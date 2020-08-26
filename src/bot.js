@@ -1,20 +1,12 @@
 require('dotenv').config();
 
 const {Client} = require('discord.js');
-const Query = require('minecraft-query');
 const client = new Client();
 const moment = require('moment');
+const Tail = require('tail').Tail;
 
 const REFRESH_INTERVAL = process.env.DISCORD_REFRESH_INTERVAL
-const IP = process.env.MC_IP
-const PORT = process.env.MC_PORT
-const TIMEOUT = process.env.MC_QUERY_TIMEOUT
-
-const MCSTATUS_OPTIONS = {
-    host: IP,
-    port: PORT,
-    timeout: TIMEOUT
-}
+const LOGFILE = process.env.LOGFILE
 
 var lastResult = []
 var channel = false
@@ -122,13 +114,18 @@ const minecraftCheck = (options) => {
         .catch(console.error)
 };
 
+var tail = new Tail(LOGFILE)
+
+tail.on("line", (data) => {
+    sendLog(data)
+})
+
+tail.on("error", (error) => {
+    sendLog(`ERROR: ${error}`)
+})
+
 client.on('ready', () => {
     console.log(`${client.user.tag} has logged in.`);
-
-    minecraftCheck(MCSTATUS_OPTIONS)
-
-    // Check status
-    var intervalId = client.setInterval(() => minecraftCheck(MCSTATUS_OPTIONS), REFRESH_INTERVAL)
 });
 
 client.on('message', msg => {

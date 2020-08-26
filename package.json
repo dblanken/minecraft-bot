@@ -13,6 +13,7 @@
     "mcstatus": "^1.0.1",
     "minecraft-query": "^1.0.9",
     "moment": "^2.27.0",
-    "nodemon": "^2.0.4"
+    "nodemon": "^2.0.4",
+    "tail": "^2.0.4"
   }
 }
