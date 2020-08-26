@@ -79,45 +79,13 @@ const changeChannel = (message) => {
     }
 }
 
-// Use minecraft-query to get the list of users
-// If there are users, check the last time to see if anyone new
-// logged on or off and message discord accordingly.
-const minecraftCheck = (options) => {
-    var q = new Query(options);
-    var online_players = 0;
-    var players = [];
-
-    if (debug) {
-        sendLog("Checking...")
-    }
-
-    q.fullStat()
-        .then(success => {
-            online_players = parseInt(success.online_players);
-            players = success.players;
-            q.close();
-        }).then(success => {
-            if (online_players > 0) {
-                var newPlayers = players.filter(x => !lastResult.includes(x))
-
-                if (newPlayers.length > 0)
-                    sendMessage(`${join_with_and(newPlayers)} ${has_or_have(newPlayers)} joined the server`)
-            }
-
-            var leftPlayers = lastResult.filter(x => !players.includes(x))
-
-            if (leftPlayers.length > 0)
-                sendMessage(`${join_with_and(leftPlayers)} ${has_or_have(leftPlayers)} have left the server`)
-
-            lastResult = players
-        })
-        .catch(console.error)
-};
-
 var tail = new Tail(LOGFILE)
 
 tail.on("line", (data) => {
-    sendLog(data)
+    var login_logout = data.match(/([^ ]+ left the game|[^ ]+ joined the game)/g)
+
+    if (login_logout)
+        sendMessage(login_logout)
 })
 
 tail.on("error", (error) => {
@@ -126,6 +94,7 @@ tail.on("error", (error) => {
 
 client.on('ready', () => {
     console.log(`${client.user.tag} has logged in.`);
+
 });
 
 client.on('message', msg => {
