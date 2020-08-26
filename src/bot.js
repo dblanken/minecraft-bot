@@ -10,7 +10,7 @@ const IP = process.env.MC_IP
 const PORT = process.env.MC_PORT
 const TIMEOUT = process.env.MC_QUERY_TIMEOUT
 
-const DISCORD_CHANNEL_ID = process.env.DISCORD_CHANNEL_ID
+var discordChannelId = process.env.DISCORD_CHANNEL_ID
 
 const MCSTATUS_OPTIONS = {
     host: IP,
@@ -21,6 +21,7 @@ const MCSTATUS_OPTIONS = {
 var lastResult = []
 var channel = false
 var debug = false
+var discordChannelId = process.env.DISCORD_CHANNEL_ID
 
 // Changes posessive based on number in array
 // >1 = have
@@ -56,13 +57,23 @@ const join_with_and = (array) => {
 const sendLog = (msg) => {
     const formatStr = "MMMM Do YYYY, h:mm:ss a"
     if (!channel)
-        channel = client.channels.cache.get(DISCORD_CHANNEL_ID)
+        channel = client.channels.cache.get(discordChannelId)
 
     if (debug)
         console.log(`${moment().format(formatStr)}: ${msg}`)
     else
         channel.send(`${moment().format(formatStr)}: ${msg}`)
 
+}
+
+// Given a string, tokenize it and if it starts with channel
+// change the channel that the bot should output to.
+const changeChannel = (message) => {
+    var tokens = message.split(" ")
+    if (tokens[0] === "channel") {
+        discordChannelId = tokens[1]
+        sendLog(`Channel set to ${discordChannelId}`)
+    }
 }
 
 // Use minecraft-query to get the list of users
@@ -108,5 +119,9 @@ client.on('ready', () => {
     // Check status
     var intervalId = client.setInterval(() => minecraftCheck(MCSTATUS_OPTIONS), REFRESH_INTERVAL)
 });
+
+client.on('message', msg => {
+    changeChannel(msg.content)
+})
 
 client.login(process.env.DISCORD_BOT_TOKEN);
