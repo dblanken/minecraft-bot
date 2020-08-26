@@ -10,8 +10,6 @@ const IP = process.env.MC_IP
 const PORT = process.env.MC_PORT
 const TIMEOUT = process.env.MC_QUERY_TIMEOUT
 
-var discordChannelId = process.env.DISCORD_CHANNEL_ID
-
 const MCSTATUS_OPTIONS = {
     host: IP,
     port: PORT,
@@ -20,8 +18,10 @@ const MCSTATUS_OPTIONS = {
 
 var lastResult = []
 var channel = false
+var logChannel = false
 var debug = false
 var discordChannelId = process.env.DISCORD_CHANNEL_ID
+var discordLogChannelId = process.env.DISCORD_CHANNEL_ID
 
 // Changes posessive based on number in array
 // >1 = have
@@ -56,14 +56,24 @@ const join_with_and = (array) => {
 // or display in console
 const sendLog = (msg) => {
     const formatStr = "MMMM Do YYYY, h:mm:ss a"
-    if (!channel)
-        channel = client.channels.cache.get(discordChannelId)
+    if (!logChannel)
+        logChannel = client.channels.cache.get(discordLogChannelId)
 
     if (debug)
         console.log(`${moment().format(formatStr)}: ${msg}`)
     else
-        channel.send(`${moment().format(formatStr)}: ${msg}`)
+        logChannel.send(`${moment().format(formatStr)}: ${msg}`)
 
+}
+
+const sendMessage = (msg) => {
+    if (!channel)
+        channel = client.channels.cache.get(discordChannelId)
+
+    if (debug)
+        console.log(`${msg}`)
+    else
+        channel.send(`${msg}`)
 }
 
 // Given a string, tokenize it and if it starts with channel
@@ -72,6 +82,7 @@ const changeChannel = (message) => {
     var tokens = message.split(" ")
     if (tokens[0] === "channel") {
         discordChannelId = tokens[1]
+        channel = client.channels.cache.get(discordChannelId)
         sendLog(`Channel set to ${discordChannelId}`)
     }
 }
@@ -98,13 +109,13 @@ const minecraftCheck = (options) => {
                 var newPlayers = players.filter(x => !lastResult.includes(x))
 
                 if (newPlayers.length > 0)
-                    sendLog(`${join_with_and(newPlayers)} ${has_or_have(newPlayers)} joined the server`)
+                    sendMessage(`${join_with_and(newPlayers)} ${has_or_have(newPlayers)} joined the server`)
             }
 
             var leftPlayers = lastResult.filter(x => !players.includes(x))
 
             if (leftPlayers.length > 0)
-                sendLog(`${join_with_and(leftPlayers)} ${has_or_have(leftPlayers)} have left the server`)
+                sendMessage(`${join_with_and(leftPlayers)} ${has_or_have(leftPlayers)} have left the server`)
 
             lastResult = players
         })
