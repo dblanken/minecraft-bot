@@ -45,11 +45,13 @@ const join_with_and = (array) => {
 
 }
 
+const DATEFORMAT = "MMMM Do YYYY, h:mm:ss a"
+
 // Sends a log message
 // Based on the debug flag, this will either display in discord,
 // or display in console
 const sendLog = (msg) => {
-    const formatStr = "MMMM Do YYYY, h:mm:ss a"
+    const formatStr = DATEFORMAT
     if (!logChannel)
         logChannel = client.channels.cache.get(discordLogChannelId)
 
