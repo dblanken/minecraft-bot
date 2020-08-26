@@ -16,6 +16,8 @@ const MCSTATUS_OPTIONS = {
     timeout: TIMEOUT
 }
 
+const DISCORD_ADMIN_ID = process.env.ADMIN_ID
+
 var lastResult = []
 var channel = false
 var logChannel = false
@@ -78,12 +80,22 @@ const sendMessage = (msg) => {
 
 // Given a string, tokenize it and if it starts with channel
 // change the channel that the bot should output to.
-const changeChannel = (message) => {
+const changeChannel = (message, author_id) => {
     var tokens = message.split(" ")
     if (tokens[0] === "channel") {
-        discordChannelId = tokens[1]
-        channel = client.channels.cache.get(discordChannelId)
-        sendLog(`Channel set to ${discordChannelId}`)
+        if (author_id == DISCORD_ADMIN_ID) {
+            if (tokens[1] === "reset") {
+                discordChannelId = discordLogChannelId
+            }
+            else {
+                discordChannelId = tokens[1]
+            }
+            channel = client.channels.cache.get(discordChannelId)
+            sendLog(`Channel set to ${discordChannelId}`)
+        }
+        else if (debug) {
+            sendLog('You are not dblanken')
+        }
     }
 }
 
@@ -132,7 +144,7 @@ client.on('ready', () => {
 });
 
 client.on('message', msg => {
-    changeChannel(msg.content)
+    changeChannel(msg.content, msg.author.id)
 })
 
 client.login(process.env.DISCORD_BOT_TOKEN);
