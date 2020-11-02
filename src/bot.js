@@ -10,7 +10,6 @@ const LOGFILE = process.env.LOGFILE
 
 const DISCORD_ADMIN_ID = process.env.ADMIN_ID
 
-var lastResult = []
 var channel = false
 var logChannel = false
 var debug = false
@@ -94,9 +93,10 @@ const changeChannel = (message, author_id) => {
 }
 
 var tail = new Tail(LOGFILE)
+var JOIN_LEFT_GAME_REGEX = /([^ ]+ left the game|[^ ]+ joined the game)/g
 
 tail.on("line", (data) => {
-    var login_logout = data.match(/([^ ]+ left the game|[^ ]+ joined the game)/g)
+    var login_logout = data.match(JOIN_LEFT_GAME_REGEX)
 
     if (login_logout)
         sendMessage(login_logout)
