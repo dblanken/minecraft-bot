@@ -20,4 +20,11 @@ LOGFILE=/opt/minecraft/server/logs/latest.log
 
 From there, you use a process management tool, like [pm2](pm2), to handle spinning up the application.
 
+## Channel commands
+
+If you are the admin of the bot, you can perform the following in the same channel:
+
+* channel <new_channel_id>: Sets the bot to use a new channel to log to
+* channel reset: Resets the channel to the one specified in the .env
+
 [pm2]: <https://pm2.keymetrics.io>
