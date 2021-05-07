@@ -5,14 +5,12 @@ const client = new Client();
 const moment = require('moment');
 const Tail = require('tail').Tail;
 
-const REFRESH_INTERVAL = process.env.DISCORD_REFRESH_INTERVAL
-const LOGFILE = process.env.LOGFILE
-
-const DISCORD_ADMIN_ID = process.env.ADMIN_ID
-
 var channel = false
 var logChannel = false
 var debug = false
+
+const LOGFILE = process.env.LOGFILE
+const DISCORD_ADMIN_ID = process.env.ADMIN_ID
 var discordChannelId = process.env.DISCORD_CHANNEL_ID
 var discordLogChannelId = process.env.DISCORD_CHANNEL_ID
 
