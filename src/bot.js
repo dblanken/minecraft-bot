@@ -85,7 +85,7 @@ const changeChannel = (message, author_id) => {
             sendLog(`Channel set to ${discordChannelId}`)
         }
         else if (debug) {
-            sendLog('You are not dblanken')
+            sendLog('You are not the admin')
         }
     }
 }
