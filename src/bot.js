@@ -1,7 +1,14 @@
 require('dotenv').config();
 
-const {Client} = require('discord.js');
-const client = new Client();
+const { Client, GatewayIntentBits } = require('discord.js');
+const client = new Client({
+    intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessages,
+        // MessageContent is a privileged intent — must be enabled in the Discord Developer Portal
+        GatewayIntentBits.MessageContent,
+    ]
+});
 const moment = require('moment');
 const Tail = require('tail').Tail;
 
@@ -55,7 +62,7 @@ const sendLog = (msg) => {
     if (debug)
         console.log(`${moment().format(formatStr)}: ${msg}`)
     else
-        logChannel.send(`${moment().format(formatStr)}: ${msg}`)
+        logChannel.send({ content: `${moment().format(formatStr)}: ${msg}`, allowedMentions: { parse: [] } })
 
 }
 
@@ -66,7 +73,7 @@ const sendMessage = (msg) => {
     if (debug)
         console.log(`${msg}`)
     else
-        channel.send(`${msg}`)
+        channel.send({ content: `${msg}`, allowedMentions: { parse: [] } })
 }
 
 // Given a string, tokenize it and if it starts with channel
@@ -109,7 +116,7 @@ client.on('ready', () => {
 
 });
 
-client.on('message', msg => {
+client.on('messageCreate', msg => {
     changeChannel(msg.content, msg.author.id)
 })
 
