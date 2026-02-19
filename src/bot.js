@@ -74,7 +74,7 @@ const sendMessage = (msg) => {
 const changeChannel = (message, author_id) => {
     var tokens = message.split(" ")
     if (tokens[0] === "channel") {
-        if (author_id == DISCORD_ADMIN_ID) {
+        if (author_id === DISCORD_ADMIN_ID) {
             if (tokens[1] === "reset") {
                 discordChannelId = discordLogChannelId
             }
